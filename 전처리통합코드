@@ -1,0 +1,69 @@
+import numpy as np
+import pandas as pd
+
+df = pd.read_csv('파일명.csv')
+
+# 띄어쓰기 제거하여 새로운 칼럼에 저장
+df['no_space'] = df['comments'].apply(lambda x: x.replace(' ', ''))
+
+df[['comments', 'no_space']]
+
+!pip install git+https://github.com/haven-jeon/PyKoSpacing.git
+
+from pykospacing import Spacing
+
+spacing = Spacing()
+
+# no_space 칼럼에 띄어쓰기 적용
+df['spacing'] = df['no_space'].apply(lambda x: spacing(x.replace(" ", '')))
+
+df[['comments', 'spacing']]
+
+!pip install textblob
+from textblob import TextBlob
+
+# 맞춤법 교정
+def correct_text(text):
+    """TextBlob을 사용하여 문장 교정"""
+    return str(TextBlob(text).correct())
+
+# spacing 칼럼에 대해 맞춤법 교정 적용
+df['corrected'] = df['spacing'].apply(correct_text)
+
+# 결과 출력
+print(df[['comments', 'spacing', 'corrected']])
+
+import pandas as pd
+import re
+
+# 불용어 리스트
+stopwords = [
+    '그리고', '그', '하지만', '그래서', '그런데', '이것', '저거', '뭐', '아니', '저', '이',
+    '뭐라', '뭐든', '그거', '이런', '저런', '그런', '하다', '있다', '없다',
+    '되다', '이다', '에', '의', '은', '는', '가', '이', '를', '을', '로', '에서', '부터',
+    '과', '와', '한', '더', '보다', '처럼', '도', '만', '거나', '정말', '그냥', '진짜'
+]
+
+def clean_text(review):
+    # 링크 제거
+    comment = re.sub(r'http[s]?://\S+|www\.\S+', '', review)
+    # 이모지 제거
+    comment = re.sub(r'[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F700-\U0001F77F\U0001F900-\U0001F9FF\U00002700-\U000027BF]', '', comment)
+    # 특수 문자 및 비한글 문자 제거
+    comment = re.sub(r'[^\uAC00-\uD7A3\s]+', '', comment)
+    return comment
+
+df['cleaned'] = df['corrected'].apply(clean_text)
+
+df[['corrected', 'cleaned']]
+
+import pandas as pd
+from konlpy.tag import Kkma
+
+# Kkma 객체 생성
+kkma = Kkma()
+
+# 형태소 분석을 수행하고 결과를 tagging 칼럼에 저장
+df['tagging'] = df['cleaned'].apply(lambda x: kkma.pos(x))
+
+df[['cleaned', 'tagging']]
