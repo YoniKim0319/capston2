@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 df = pd.read_csv('파일명.csv')
-################ 아래부터 ################
 
 # 띄어쓰기 제거하여 새로운 칼럼에 저장
 df['no_space'] = df['comments'].apply(lambda x: x.replace(' ', ''))
